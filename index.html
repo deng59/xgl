@@ -1,0 +1,850 @@
+<html lang="en-us"><script src="https://pygame-web.github.io/cdn/0.9.3/pythons.js" type=module id="site" data-python="python3.12" data-LINES=42 data-COLUMNS=132 data-os="vtx,snd,gui" async defer>#<!--
+
+print("""
+Loading xlg_web from xlg_web.apk
+    Pygbag Version : 0.9.3
+    Template Version : 0.9.3
+    Python  : 3.12
+    CDN URL : https://pygame-web.github.io/cdn/0.9.3/
+    Screen  : 1280x720
+    Title   : xlg_web
+    Folder  : xlg_web
+    Authors : pgw
+    SPDX-License-Identifier: cookiecutter.spdx
+
+""")
+
+import sys
+import asyncio
+import platform
+import json
+from pathlib import Path
+
+# do not rename
+async def custom_site():
+    import embed
+    platform.document.body.style.background = "#7f7f7f"
+
+    platform.window.transfer.hidden = true
+    platform.window.canvas.style.visibility = "visible"
+
+
+    bundle = "xlg_web"
+
+    # the C or js loader could do that but be explicit.
+    appdir = Path(f"/data/data/{bundle}") # /data/data/xlg_web
+    appdir.mkdir()
+
+
+    # unpack filesystem from compressed archive into work dir
+    if platform.window.location.host.find('.itch.zone')>0:
+        import zipfile
+        async with platform.fopen("xlg_web.apk", "rb") as archive:
+            with zipfile.ZipFile(archive) as zip_ref:
+                zip_ref.extractall(appdir.as_posix())
+    else:
+        import tarfile
+        async with platform.fopen("xlg_web.tar.gz", "rb") as archive:
+            tar = tarfile.open(fileobj=archive, mode="r:gz")
+            tar.extractall(path=appdir.as_posix(), filter='tar')
+            tar.close()
+
+    # preloader will change to work dir and prepend it to sys.path
+    platform.run_main(PyConfig, loaderhome= appdir / "assets", loadermain=None)
+
+
+    # wait preloading complete : that includes images and wasm compilation of bundled modules
+    while embed.counter()<0:
+        await asyncio.sleep(.1)
+
+    main = appdir / "assets" / "main.py"
+
+    # TODO: test for window.webkitAudioContext and block aio loop until gesture if accessing media manager play
+    # before a gesture is recorded ( touch or click )
+
+    # test/wait user media interaction
+    if not platform.window.MM.UME:
+
+        # now that apk is mounted we have access to font cache
+        # but we need to fill __file__ that is not yet set
+        __import__(__name__).__file__ = main
+
+        # now make a prompt
+        msg  = "Ready to start ! Please click/touch page"
+        platform.window.infobox.innerText = msg
+        print("\n"*4, f"    * Waiting for media user engagement. {msg} *" , "\n"*4)
+
+        while not platform.window.MM.UME:
+            await asyncio.sleep(.1)
+
+    # start async top level machinery if not started and add a console in any case if requested.
+    await TopLevel_async_handler.start_toplevel(platform.shell, console=window.python.config.debug)
+
+    # now that apk is mounted we have access to font cache
+    # but we need to fill __file__/__name__ that are not yet set
+    __import__(__name__).__file__ = main
+
+
+    def ui_callback(pkg):
+        platform.window.infobox.innerText = f"installing {pkg}"
+
+    await shell.source(main, callback=ui_callback)
+
+    # if you don't reach that step
+    # your main.py has an infinite sync loop somewhere !
+
+    platform.window.infobox.style.display = "none"
+    platform.window.config.gui_divider = 1
+    platform.window.window_resize()
+    print("default.tmpl: done")
+
+    shell.interactive()
+
+asyncio.run( custom_site() )
+
+
+
+
+
+
+
+
+
+
+
+
+# BEGIN BLOCK
+#
+# now this is the html part you can (and should) customize
+# It is not mandatory : pygame-script when it reads the first line (also called
+# shebang ) of above code create absolute minimal widget set
+# required for running with default rules
+#
+# do not alter that comment block it is separating python code from html code
+# =============================================================================
+# --></script><head><!--
+//=============================================================================
+//
+//
+//
+//
+//
+//
+//
+
+    {%- if cookiecutter.comment != "" -%}
+{{cookiecutter.comment}}
+    {% endif %}
+
+--><script type="application/javascript">
+// END BLOCK
+
+// this dict is available under PyConfig.config from __main__
+config = {
+    xtermjs : "1" ,
+    _sdl2 : "canvas",
+    user_canvas : 0,
+    user_canvas_managed : 0,
+    gui_divider : 1,
+    ume_block : 1,
+    can_close : 0,
+    archive : "xlg_web",
+    gui_debug : 0,
+    cdn : "https://pygame-web.github.io/cdn/0.9.3/",
+    autorun : 0,
+    PYBUILD : "3.12",
+    fb_ar   :  1.7777777777777777,
+    fb_width : "1280",
+    fb_height : "720"
+}
+
+function show_infobox() {
+    const box = document.getElementById('infobox');
+    if (!box) return;
+    box.style.display = 'flex';
+}
+</script>
+
+    <title>萌芽之地 (Mini Stardew) - 网页掌机版</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#12131a">
+
+    <link rel="icon" type="image/png" href="favicon.png" sizes="32x32">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #12131a;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        /* 游戏主画布容器 */
+        #game-viewport {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f1016;
+            z-index: 1;
+        }
+
+        canvas.emscripten {
+            border: 0 none;
+            background-color: #000;
+            position: absolute;
+            top: 0; bottom: 0; left: 0; right: 0;
+            margin: auto;
+            max-width: 100vw;
+            max-height: 100vh;
+            aspect-ratio: 16 / 9;
+            object-fit: contain;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            z-index: 5;
+        }
+
+        /* 加载进度遮罩 */
+        #transfer {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, #242838 0%, #12131a 100%);
+            z-index: 99999;
+            gap: 16px;
+        }
+
+        .loader-title {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #7ce38b;
+            text-shadow: 0 0 16px rgba(124, 227, 139, 0.5);
+        }
+
+        #status {
+            font-size: 14px;
+            color: #cbd5e1;
+        }
+
+        #progress {
+            width: 260px;
+            height: 10px;
+            appearance: none;
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        #progress::-webkit-progress-bar {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        #progress::-webkit-progress-value {
+            background: linear-gradient(90deg, #4ade80, #38bdf8);
+        }
+
+        /* 开始游戏提示卡片 */
+        #infobox {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(24, 28, 42, 0.95);
+            border: 2px solid #4ade80;
+            box-shadow: 0 0 30px rgba(74, 222, 128, 0.4), 0 20px 40px rgba(0,0,0,0.7);
+            border-radius: 20px;
+            padding: 26px 40px;
+            z-index: 100000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 20px rgba(74, 222, 128, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(74, 222, 128, 0.7); }
+        }
+
+        .infobox-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .infobox-btn {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 12px 28px;
+            border-radius: 30px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.5);
+            pointer-events: none;
+        }
+
+        /* 虚拟按键层 */
+        .controls-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+        }
+
+        /* 顶部状态与工具栏 */
+        .top-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            pointer-events: auto;
+        }
+
+        .game-title-pill {
+            background: rgba(18, 20, 30, 0.75);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #86efac;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .top-btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tool-btn {
+            background: rgba(18, 20, 30, 0.75);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #f1f5f9;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .tool-btn:active {
+            transform: scale(0.92);
+            background: rgba(74, 222, 128, 0.3);
+            border-color: #4ade80;
+        }
+
+        /* 横屏建议提示 */
+        .orientation-hint {
+            position: fixed;
+            top: 54px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(234, 179, 8, 0.95);
+            color: #000;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+            pointer-events: auto;
+            cursor: pointer;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translate(-50%, -10px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        /* 掌机虚拟操控面板（底部） */
+        .bottom-gamepad {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        /* 左侧十字方向键 (D-Pad) */
+        .dpad-container {
+            position: relative;
+            width: 154px;
+            height: 154px;
+            pointer-events: auto;
+            touch-action: none;
+        }
+
+        .dpad-btn {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(30, 34, 50, 0.82);
+            border: 2px solid rgba(255, 255, 255, 0.22);
+            color: #f8fafc;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+            cursor: pointer;
+            touch-action: none;
+            backdrop-filter: blur(8px);
+            transition: transform 0.06s, background 0.06s;
+        }
+
+        .dpad-btn:active, .dpad-btn.pressed {
+            background: rgba(74, 222, 128, 0.6) !important;
+            border-color: #4ade80 !important;
+            transform: scale(0.92);
+            box-shadow: 0 0 16px rgba(74, 222, 128, 0.8);
+        }
+
+        .dpad-up    { top: 0; left: 52px; border-radius: 14px 14px 4px 4px; }
+        .dpad-down  { bottom: 0; left: 52px; border-radius: 4px 4px 14px 14px; }
+        .dpad-left  { left: 0; top: 52px; border-radius: 14px 4px 4px 14px; }
+        .dpad-right { right: 0; top: 52px; border-radius: 4px 14px 14px 4px; }
+        .dpad-center {
+            position: absolute;
+            top: 52px; left: 52px;
+            width: 50px; height: 50px;
+            background: rgba(20, 23, 34, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        /* 中部次要按键 (换种子、退出/菜单) */
+        .center-utility {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            pointer-events: auto;
+        }
+
+        .util-btn {
+            background: rgba(30, 34, 50, 0.8);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 8px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
+            font-size: 11px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            touch-action: none;
+            transition: transform 0.08s;
+        }
+
+        .util-btn .sub-key {
+            font-size: 9px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .util-btn:active, .util-btn.pressed {
+            background: rgba(147, 197, 253, 0.5);
+            border-color: #93c5fd;
+            transform: scale(0.92);
+        }
+
+        /* 右侧动作按键群 (菱形布局 ABXY) */
+        .action-container {
+            position: relative;
+            width: 176px;
+            height: 176px;
+            pointer-events: auto;
+            touch-action: none;
+        }
+
+        .action-btn {
+            position: absolute;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.5);
+            cursor: pointer;
+            touch-action: none;
+            backdrop-filter: blur(8px);
+            transition: transform 0.06s, box-shadow 0.06s;
+        }
+
+        .action-btn .btn-label {
+            font-size: 15px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .action-btn .btn-text {
+            font-size: 9px;
+            font-weight: 600;
+            margin-top: 2px;
+            opacity: 0.95;
+        }
+
+        .action-btn:active, .action-btn.pressed {
+            transform: scale(0.90);
+        }
+
+        /* A键: 互动/确定 (Enter) - 翡翠绿高亮 */
+        .btn-a {
+            right: 2px;
+            top: 60px;
+            background: rgba(34, 197, 94, 0.85);
+            border: 2px solid #86efac;
+            color: #fff;
+        }
+        .btn-a:active, .btn-a.pressed {
+            box-shadow: 0 0 18px rgba(34, 197, 94, 0.95);
+        }
+
+        /* B键: 工具/使用 (Space) - 海洋蓝 */
+        .btn-b {
+            bottom: 2px;
+            left: 60px;
+            background: rgba(59, 130, 246, 0.85);
+            border: 2px solid #93c5fd;
+            color: #fff;
+        }
+        .btn-b:active, .btn-b.pressed {
+            box-shadow: 0 0 18px rgba(59, 130, 246, 0.95);
+        }
+
+        /* X键: 播种 (Ctrl) - 暖橙色 */
+        .btn-x {
+            left: 2px;
+            top: 60px;
+            background: rgba(249, 115, 22, 0.85);
+            border: 2px solid #fdba74;
+            color: #fff;
+        }
+        .btn-x:active, .btn-x.pressed {
+            box-shadow: 0 0 18px rgba(249, 115, 22, 0.95);
+        }
+
+        /* Y键: 切工具 (Q) - 紫水晶色 */
+        .btn-y {
+            top: 2px;
+            left: 60px;
+            background: rgba(168, 85, 247, 0.85);
+            border: 2px solid #d8b4fe;
+            color: #fff;
+        }
+        .btn-y:active, .btn-y.pressed {
+            box-shadow: 0 0 18px rgba(168, 85, 247, 0.95);
+        }
+
+        /* 竖屏时的适配 */
+        @media (orientation: portrait) {
+            .orientation-hint {
+                display: block;
+            }
+            .dpad-container {
+                transform: scale(0.92);
+                transform-origin: bottom left;
+            }
+            .action-container {
+                transform: scale(0.92);
+                transform-origin: bottom right;
+            }
+        }
+
+        /* 小屏手机适配 */
+        @media (max-width: 600px) {
+            .center-utility {
+                margin-bottom: 2px;
+            }
+            .util-btn {
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+        }
+    </style>
+    <script src="https://pygame-web.github.io/cdn/0.9.3//browserfs.min.js"></script>
+</head>
+
+<body>
+
+    <div id="game-viewport">
+        <canvas class="emscripten" id="canvas" width="1px" height="1px" oncontextmenu="event.preventDefault()" tabindex="1"></canvas>
+        <canvas class="emscripten" id="canvas3d" width="1280px" height="720px" oncontextmenu="event.preventDefault()" tabindex="1" hidden></canvas>
+    </div>
+
+    <!-- 加载中动画 -->
+    <div id="transfer">
+        <div class="loader-title">🌾 萌芽之地</div>
+        <div class="emscripten" id="status">正在解包游戏资源，请稍候...</div>
+        <div class="emscripten">
+            <progress value="0" max="100" id="progress"></progress>
+        </div>
+    </div>
+
+    <!-- 点击开始游戏弹层 -->
+    <div id="infobox">
+        <div class="infobox-title">🌾 萌芽之地 (Mini Stardew)</div>
+        <button class="infobox-btn">▶ 点击/触摸屏幕开始游玩</button>
+    </div>
+
+    <!-- 手机掌机触屏虚拟手柄层 -->
+    <div id="mobile-controls" class="controls-overlay">
+        <!-- 顶部工具栏 -->
+        <div class="top-toolbar">
+            <div class="game-title-pill">🌱 萌芽之地</div>
+            <div class="top-btn-group">
+                <button id="btn-toggle-pad" class="tool-btn" title="开关虚拟手柄">🎮 手柄开关</button>
+                <button id="btn-fullscreen" class="tool-btn" title="进入全屏模式">⛶ 全屏</button>
+            </div>
+        </div>
+
+        <!-- 横屏体验提示 -->
+        <div id="orientation-hint" class="orientation-hint" onclick="this.style.display='none'">
+            📱 建议旋转手机横屏游玩 (点击关闭)
+        </div>
+
+        <!-- 底部控制器区域 -->
+        <div class="bottom-gamepad">
+            <!-- 左侧：十字方向键 -->
+            <div class="dpad-container" id="dpad-root">
+                <button class="dpad-btn dpad-up" data-key="ArrowUp" data-code="ArrowUp" data-keycode="38">▲</button>
+                <button class="dpad-btn dpad-left" data-key="ArrowLeft" data-code="ArrowLeft" data-keycode="37">◀</button>
+                <div class="dpad-center"></div>
+                <button class="dpad-btn dpad-right" data-key="ArrowRight" data-code="ArrowRight" data-keycode="39">▶</button>
+                <button class="dpad-btn dpad-down" data-key="ArrowDown" data-code="ArrowDown" data-keycode="40">▼</button>
+            </div>
+
+            <!-- 中间：次要功能键 (E:切种子, ESC:关店/菜单) -->
+            <div class="center-utility">
+                <button class="util-btn" data-key="e" data-code="KeyE" data-keycode="69">
+                    <span>切种子</span>
+                    <span class="sub-key">[E]</span>
+                </button>
+                <button class="util-btn" data-key="Escape" data-code="Escape" data-keycode="27">
+                    <span>退出/菜单</span>
+                    <span class="sub-key">[ESC]</span>
+                </button>
+            </div>
+
+            <!-- 右侧：动作按键群 (ABXY) -->
+            <div class="action-container">
+                <!-- Y: 切工具 (Q) -->
+                <button class="action-btn btn-y" data-key="q" data-code="KeyQ" data-keycode="81">
+                    <span class="btn-label">Y</span>
+                    <span class="btn-text">切工具</span>
+                </button>
+                <!-- X: 播种 (Ctrl) -->
+                <button class="action-btn btn-x" data-key="Control" data-code="ControlLeft" data-keycode="17">
+                    <span class="btn-label">X</span>
+                    <span class="btn-text">播种</span>
+                </button>
+                <!-- A: 互动/确定 (Enter) -->
+                <button class="action-btn btn-a" data-key="Enter" data-code="Enter" data-keycode="13">
+                    <span class="btn-label">A</span>
+                    <span class="btn-text">互动</span>
+                </button>
+                <!-- B: 工具/使用 (Space) -->
+                <button class="action-btn btn-b" data-key=" " data-code="Space" data-keycode="32">
+                    <span class="btn-label">B</span>
+                    <span class="btn-text">使用</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 兼容隐藏元素 -->
+    <div id="html" hidden></div>
+    <div id="crt" hidden>
+        <div id="system" hidden>
+            <button id="aiostop" disabled></button>
+            <button id="aiopaused_true" disabled></button>
+            <button id="aiopaused_false" disabled></button>
+            <button id="pygame_mixer_music_pause" disabled></button>
+            <button id="load_rst" disabled></button>
+        </div>
+        <div id="box" hidden><div id="info"></div><iframe id="iframe" hidden></iframe></div>
+    </div>
+    <div id="dlg" hidden><input type="file" id="dlg_multifile"></div>
+    <div id="pyconsole" hidden><div id="terminal"></div></div>
+
+    <script type="application/javascript">
+    globalThis.__canvas_resized = (self, ecw, ech) => {};
+
+    async function custom_onload(debug_hidden) {
+        if (typeof pyconsole !== 'undefined') pyconsole.hidden = true;
+        if (typeof system !== 'undefined') system.hidden = true;
+        if (typeof transfer !== 'undefined') transfer.hidden = debug_hidden;
+        show_infobox();
+    }
+
+    function custom_prerun() {}
+    function custom_postrun() {}
+    function debug() {}
+    function info_inline(data) {}
+    function info_online(url) {}
+    function frame_online(url) {}
+
+    // ==========================================
+    // 手机端虚拟手柄核心事件驱动系统
+    // ==========================================
+    (function initVirtualGamepad() {
+        const activeKeys = new Set();
+        const canvas = document.getElementById('canvas');
+
+        function sendKey(code, key, keyCode, isDown) {
+            if (isDown) {
+                if (activeKeys.has(code)) return;
+                activeKeys.add(code);
+                if (navigator.vibrate) {
+                    try { navigator.vibrate(12); } catch(e){}
+                }
+            } else {
+                if (!activeKeys.has(code)) return;
+                activeKeys.delete(code);
+            }
+
+            const type = isDown ? 'keydown' : 'keyup';
+            const event = new KeyboardEvent(type, {
+                code: code,
+                key: key,
+                keyCode: keyCode,
+                which: keyCode,
+                bubbles: true,
+                cancelable: true,
+                view: window
+            });
+
+            window.dispatchEvent(event);
+            document.dispatchEvent(event);
+            if (canvas) canvas.dispatchEvent(event);
+        }
+
+        // 绑定所有带 [data-code] 的虚拟按键
+        document.querySelectorAll('[data-code]').forEach(btn => {
+            const code = btn.getAttribute('data-code');
+            const key = btn.getAttribute('data-key');
+            const keyCode = parseInt(btn.getAttribute('data-keycode'), 10);
+
+            const onStart = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                btn.classList.add('pressed');
+                sendKey(code, key, keyCode, true);
+            };
+
+            const onEnd = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                btn.classList.remove('pressed');
+                sendKey(code, key, keyCode, false);
+            };
+
+            // Touch events
+            btn.addEventListener('touchstart', onStart, { passive: false });
+            btn.addEventListener('touchend', onEnd, { passive: false });
+            btn.addEventListener('touchcancel', onEnd, { passive: false });
+
+            // Mouse events for desktop test
+            btn.addEventListener('mousedown', onStart);
+            btn.addEventListener('mouseup', onEnd);
+            btn.addEventListener('mouseleave', onEnd);
+        });
+
+        // 全屏切换按钮
+        const btnFs = document.getElementById('btn-fullscreen');
+        if (btnFs) {
+            btnFs.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(() => {});
+                } else {
+                    document.exitFullscreen().catch(() => {});
+                }
+            });
+        }
+
+        // 手柄显隐切换
+        const btnTogglePad = document.getElementById('btn-toggle-pad');
+        const gamepadLayer = document.querySelector('.bottom-gamepad');
+        if (btnTogglePad && gamepadLayer) {
+            btnTogglePad.addEventListener('click', () => {
+                const isHidden = gamepadLayer.style.display === 'none';
+                gamepadLayer.style.display = isHidden ? 'flex' : 'none';
+                btnTogglePad.innerText = isHidden ? '🎮 隐藏手柄' : '🎮 显示手柄';
+            });
+        }
+
+        // 点击开始卡片启动游戏
+        const infobox = document.getElementById('infobox');
+        if (infobox) {
+            const startHandler = () => {
+                if (window.MM) {
+                    window.MM.UME = true;
+                }
+                infobox.style.display = 'none';
+            };
+            infobox.addEventListener('click', startHandler);
+            infobox.addEventListener('touchstart', startHandler, { passive: true });
+        }
+
+        // 监听屏幕旋转提示
+        function checkOrientation() {
+            const hint = document.getElementById('orientation-hint');
+            if (!hint) return;
+            const isPortrait = window.innerHeight > window.innerWidth;
+            const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+            if (isMobile && isPortrait) {
+                hint.style.display = 'block';
+            } else {
+                hint.style.display = 'none';
+            }
+        }
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+        checkOrientation();
+    })();
+    </script>
+</body>
+</html>
